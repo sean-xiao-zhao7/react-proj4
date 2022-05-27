@@ -1,26 +1,35 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 const SimpleInput = (_) => {
-    const nameRef = useRef();
     const [name, setName] = useState("");
-    const [nameIsValid, setNameIsValid] = useState(true);
+    const [nameTouched, setNameTouched] = useState(false);
+    const nameIsValid = name.trim() !== "";
+    const nameIsValidOverall = nameIsValid || !nameTouched;
 
     const nameChangeHandler = (event) => {
         setName(event.target.value);
+    };
+
+    const nameBlurHandler = () => {
+        setNameTouched(true);
     };
 
     const submitHandler = (event) => {
         event.preventDefault();
 
         // validate inputs
-        if (name.trim() === "") {
-            setNameIsValid(false);
+        if (!nameIsValidOverall) {
             return;
         }
-        setNameIsValid(true);
+
+        // reset form if successful
+        setName("");
+        setNameTouched(false);
     };
 
-    const nameClasses = nameIsValid ? "form-control" : "form-control invalid";
+    const nameClasses = nameIsValidOverall
+        ? "form-control"
+        : "form-control invalid";
 
     return (
         <form onSubmit={submitHandler}>
@@ -30,10 +39,10 @@ const SimpleInput = (_) => {
                     type="text"
                     id="name"
                     onChange={nameChangeHandler}
+                    onBlur={nameBlurHandler}
                     value={name}
-                    ref={nameRef}
                 />
-                {!nameIsValid && (
+                {!nameIsValidOverall && (
                     <p className="error-text">Name must not be empty.</p>
                 )}
             </div>

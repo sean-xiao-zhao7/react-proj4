@@ -1,41 +1,28 @@
-import { useState } from "react";
+import useInput from "../hooks/use-input";
 
 const SimpleInput = (_) => {
-    const [name, setName] = useState("");
-    const [nameTouched, setNameTouched] = useState(false);
-
-    const nameIsValid = name.trim() !== "";
-    const nameIsValidOverall = nameIsValid || !nameTouched;
-
-    let formValid = false;
-    if (nameIsValid) {
-        formValid = false;
-    }
-
-    const nameChangeHandler = (event) => {
-        setName(event.target.value);
-    };
-
-    const nameBlurHandler = () => {
-        setNameTouched(true);
-    };
+    const {
+        value: name,
+        valueIsValid: nameValid,
+        hasError: nameHasError,
+        valueChangeHandler: nameChangeHandler,
+        blurHandler: nameBlurHandler,
+        reset,
+    } = useInput((value) => value.trim() !== "");
 
     const submitHandler = (event) => {
         event.preventDefault();
 
         // validate inputs
-        if (!nameIsValidOverall) {
+        if (nameValid) {
             return;
         }
 
         // reset form if successful
-        setName("");
-        setNameTouched(false);
+        reset();
     };
 
-    const nameClasses = nameIsValidOverall
-        ? "form-control"
-        : "form-control invalid";
+    const nameClasses = !nameHasError ? "form-control" : "form-control invalid";
 
     return (
         <form onSubmit={submitHandler}>
@@ -48,12 +35,12 @@ const SimpleInput = (_) => {
                     onBlur={nameBlurHandler}
                     value={name}
                 />
-                {!nameIsValidOverall && (
+                {nameHasError && (
                     <p className="error-text">Name must not be empty.</p>
                 )}
             </div>
             <div className="form-actions">
-                <button disabled={!formValid}>Submit</button>
+                <button disabled={!nameValid}>Submit</button>
             </div>
         </form>
     );

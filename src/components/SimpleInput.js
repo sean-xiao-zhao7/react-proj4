@@ -1,25 +1,32 @@
 import useInput from "../hooks/use-input";
 
 const SimpleInput = (_) => {
+    const validator = (value) => value.trim() !== "";
     const {
         value: name,
         valueIsValid: nameValid,
         hasError: nameHasError,
         valueChangeHandler: nameChangeHandler,
         blurHandler: nameBlurHandler,
-        reset,
-    } = useInput((value) => value.trim() !== "");
+        resetName,
+    } = useInput(validator);
+
+    const {
+        value: email,
+        valueIsValid: emailValid,
+        hasError: emailHasError,
+        valueChangeHandler: emailChangeHandler,
+        blurHandler: emailBlurHandler,
+        resetEmail,
+    } = useInput(validator);
 
     const submitHandler = (event) => {
         event.preventDefault();
-
-        // validate inputs
-        if (nameValid) {
+        if (!nameValid || !emailValid) {
             return;
         }
-
-        // reset form if successful
-        reset();
+        resetName();
+        resetEmail();
     };
 
     const nameClasses = !nameHasError ? "form-control" : "form-control invalid";
@@ -39,8 +46,21 @@ const SimpleInput = (_) => {
                     <p className="error-text">Name must not be empty.</p>
                 )}
             </div>
+            <div className={nameClasses}>
+                <label htmlFor="email">Your email</label>
+                <input
+                    type="text"
+                    id="email"
+                    onChange={emailChangeHandler}
+                    onBlur={emailBlurHandler}
+                    value={email}
+                />
+                {emailHasError && (
+                    <p className="error-text">Email must not be empty.</p>
+                )}
+            </div>
             <div className="form-actions">
-                <button disabled={!nameValid}>Submit</button>
+                <button disabled={!nameValid || !emailValid}>Submit</button>
             </div>
         </form>
     );
